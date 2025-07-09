@@ -74,7 +74,7 @@
     .cerrar {
       position: absolute;
       top: 1em;
-      right: 1.5em; /* MÁS MARGEN DERECHO */
+      right: 1.5em;
       font-size: 2.5em;
       color: #fff;
       cursor: pointer;
@@ -103,7 +103,6 @@
       color: #ffcc00;
     }
 
-    /* MÁRGENES ADICIONALES PARA EQUILIBRAR */
     .flechas span:first-child {
       margin-left: 0.5em;
     }
@@ -119,7 +118,6 @@
       border-radius: 4px;
     }
 
-    /* MÓVIL: MEJOR VISUALIZACIÓN EN VERTICAL */
     @media (max-width: 768px) {
       .visor img {
         max-height: 60vh;
@@ -139,14 +137,16 @@
       }
     }
 
-    /* MÓVIL: MEJOR VISUALIZACIÓN EN HORIZONTAL */
+    /* 👇 NUEVO ajuste: mejora en horizontal móvil */
     @media (orientation: landscape) and (max-width: 900px) {
       .visor img {
-        max-height: 90vh;
+        max-height: 80vh;
       }
 
       .descripcion {
-        max-height: 50vh;
+        max-height: 70vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
       }
     }
   </style>
@@ -159,7 +159,7 @@
     <img
       loading="lazy"
       src="Foto_001_Expacionavalmoral.jpg"
-      alt="Parque empresarial en Navalmoral de la Mata"
+      alt="Exposición en Navalmoral de la Mata"
       data-desc="23 de mayo de 2021. Expacionavalmoral ha sido protagonista estos días en la actualidad morala, entre otras cosas, por el aterrizaje de emergencia de una avioneta en una de sus avenidas. Buen momento para incluir esta fotografía, que nos ha hecho llegar Yoguifly’s, en “Imágenes Amigas de nuestro entorno”.">
 
     <img
@@ -256,7 +256,6 @@
       }
     });
 
-    // Cerrar al pulsar fuera de la imagen
     function esElementoInterno(el) {
       return (
         el === imagenGrande ||
