@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <title>Imágenes Amigas de Nuestro Entorno</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
       font-family: sans-serif;
@@ -102,13 +103,31 @@
     .flechas span:hover {
       color: #ffcc00;
     }
-    /* Scrollbar para descripción */
     .descripcion::-webkit-scrollbar {
       width: 8px;
     }
     .descripcion::-webkit-scrollbar-thumb {
       background: rgba(255, 255, 255, 0.3);
       border-radius: 4px;
+    }
+
+    @media (max-width: 768px) {
+      .visor img {
+        max-height: 60vh;
+      }
+
+      .descripcion {
+        max-height: 30vh;
+        font-size: 1em;
+      }
+
+      .flechas span {
+        font-size: 2.5em;
+      }
+
+      .cerrar {
+        font-size: 2em;
+      }
     }
   </style>
 </head>
@@ -146,15 +165,6 @@
       src="Foto_005_fuente-la-Teja.jpg"
       alt="Fuente La Teja"
       data-desc="28 de marzo de 2021. Ya se deja notar la primavera en Navalmoral, con su paleta de colores en la fuente de la Teja y sus alrededores. Fuente la Teja en Navalmoral de la Mata. | Yoguifly’s | PdE">
-
-    <!--
-    EJEMPLO para añadir nuevas imágenes:
-    <img
-      loading="lazy"
-      src="Nombre_de_la_imagen.jpg"
-      alt="Texto alternativo descriptivo"
-      data-desc="Descripción completa de la imagen que aparecerá en el visor.">
-    -->
   </div>
 
   <div
@@ -174,20 +184,8 @@
     >×</span>
 
     <div class="flechas">
-      <span
-        role="button"
-        aria-label="Imagen anterior"
-        tabindex="0"
-        onclick="cambiarImagen(-1)"
-        onkeypress="if(event.key==='Enter') cambiarImagen(-1)"
-      >‹</span>
-      <span
-        role="button"
-        aria-label="Imagen siguiente"
-        tabindex="0"
-        onclick="cambiarImagen(1)"
-        onkeypress="if(event.key==='Enter') cambiarImagen(1)"
-      >›</span>
+      <span role="button" aria-label="Imagen anterior" tabindex="0" onclick="cambiarImagen(-1)" onkeypress="if(event.key==='Enter') cambiarImagen(-1)">‹</span>
+      <span role="button" aria-label="Imagen siguiente" tabindex="0" onclick="cambiarImagen(1)" onkeypress="if(event.key==='Enter') cambiarImagen(1)">›</span>
     </div>
 
     <img id="imagenGrande" src="" alt="" loading="eager" />
@@ -201,7 +199,6 @@
     const descripcion = document.getElementById('descripcion');
     let indiceActual = 0;
 
-    // Bloquea/desbloquea scroll del body según visor visible
     function bloquearScroll(bloquear) {
       document.body.style.overflow = bloquear ? 'hidden' : '';
     }
@@ -234,15 +231,11 @@
       precargarVecinas();
     }
 
-    // Precarga imágenes anterior y siguiente
     function precargarVecinas() {
       const prev = imagenes[(indiceActual - 1 + imagenes.length) % imagenes.length].src;
       const next = imagenes[(indiceActual + 1) % imagenes.length].src;
-
-      const imgPrev = new Image();
-      imgPrev.src = prev;
-      const imgNext = new Image();
-      imgNext.src = next;
+      new Image().src = prev;
+      new Image().src = next;
     }
 
     document.addEventListener('keydown', e => {
@@ -253,12 +246,23 @@
       }
     });
 
-    // Cerrar visor al hacer clic fuera de la imagen grande
-    visor.addEventListener('click', (e) => {
-      if (e.target === visor) {
-        cerrarVisor();
-      }
-    });
+    // Soporte clic y toque fuera del visor
+    function esElementoInterno(elemento) {
+      return (
+        elemento === imagenGrande ||
+        elemento === descripcion ||
+        elemento.closest('.flechas') ||
+        elemento.classList.contains('cerrar')
+      );
+    }
+
+    ['click', 'touchstart'].forEach(evt =>
+      visor.addEventListener(evt, e => {
+        if (!esElementoInterno(e.target)) {
+          cerrarVisor();
+        }
+      })
+    );
   </script>
 
 </body>
