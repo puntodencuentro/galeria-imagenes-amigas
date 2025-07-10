@@ -22,17 +22,29 @@
       justify-content: center;
       gap: 1em;
       margin-top: 2em;
+      max-width: 1872px;  /* Limita ancho y centra */
+      margin-left: auto;
+      margin-right: auto;
     }
-    .galeria img {
+    .galeria .item {
       width: 220px;
+      height: 150px; /* tamaño fijo para todas */
       border-radius: 6px;
+      overflow: hidden;
       cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
       transition: transform 0.2s;
-      object-fit: cover; /* evita deformar imágenes */
-      height: 150px; /* altura fija para evitar estiramientos */
+      background: white;
     }
-    .galeria img:hover {
+    .galeria .item:hover {
       transform: scale(1.05);
+    }
+    .galeria .item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      border-radius: 6px;
     }
 
     .visor {
@@ -45,9 +57,10 @@
       align-items: center;
       flex-direction: column;
       z-index: 9999;
-      padding: 1em;
+      padding: 1em 3em; /* Más espacio lateral para que no quede tan pegado */
       opacity: 0;
       transition: opacity 0.3s ease;
+      box-sizing: border-box;
     }
     .visor.visible {
       display: flex;
@@ -76,7 +89,7 @@
     .cerrar {
       position: absolute;
       top: 1em;
-      right: 1.5em;
+      right: 3em; /* Separación mayor a la derecha */
       font-size: 2.5em;
       color: #fff;
       cursor: pointer;
@@ -89,8 +102,9 @@
       display: flex;
       justify-content: space-between;
       transform: translateY(-50%);
-      padding: 0 1em;
+      padding: 0 3em; /* Más separación lateral */
       z-index: 10000;
+      box-sizing: border-box;
     }
     .flechas span {
       font-size: 3em;
@@ -121,38 +135,34 @@
     }
 
     @media (max-width: 768px) {
+      .visor {
+        padding: 1em 1.5em; /* menos espacio lateral en móviles */
+      }
+      .cerrar {
+        right: 1.5em;
+      }
+      .flechas {
+        padding: 0 1.5em;
+      }
       .visor img {
         max-height: 60vh;
       }
-
       .descripcion {
         max-height: 30vh;
         font-size: 1em;
       }
-
       .flechas span {
         font-size: 2.5em;
       }
-
       .cerrar {
         font-size: 2em;
       }
-
-      .galeria {
-        max-width: 100%;
-        margin: 0 auto;
-        padding-left: 1em;
-        padding-right: 1em;
-        justify-content: center;
-      }
     }
 
-    /* 👇 Ajuste mejora en horizontal móvil */
     @media (orientation: landscape) and (max-width: 900px) {
       .visor img {
         max-height: 80vh;
       }
-
       .descripcion {
         max-height: 70vh;
         overflow-y: auto;
@@ -167,53 +177,77 @@
 
   <div class="galeria">
 
-    <img
-      loading="lazy"
-      src="Foto_008_Monolito-moralo.jpg"
-      alt="Monolito moralo"
-      data-desc="11 de junio de 2020. ¡Hola amigas/os, buenos días! Con esta perspectiva del monolito moralo que engalana la rotonda de la carretera de Valdehúncar dando rienda suelta a la imaginación según desde donde se observe. En este caso se nos antoja como un gran dinosaurio enamorado de la Piedra Caballera, a la que no puede dejar de mirar petrificado por su belleza. ¡Feliz jueves! Foto: PdE">
+    <div class="item">
+      <img
+        loading="lazy"
+        src="Foto_008_Monolito-moralo.jpg"
+        alt="Monolito moralo"
+        data-desc="11 de junio de 2020. ¡Hola amigas/os, buenos días! Con esta perspectiva del monolito moralo que engalana la rotonda de la carretera de Valdehúncar dando rienda suelta a la imaginación según desde donde se observe. En este caso se nos antoja como un gran dinosaurio enamorado de la Piedra Caballera, a la que no puede dejar de mirar petrificado por su belleza. ¡Feliz jueves! Foto: PdE"
+      >
+    </div>
 
-    <img
-      loading="lazy"
-      src="Foto_007_Fuente-San-Isidro.jpg"
-      alt="Fuente San Isidro"
-      data-desc="14 de marzo de 2021. Reflejos al atardecer en la fuente del parque frente a la ermita de San Isidro. En Navalmoral de la Mata, para “Imágenes amigas de nuestro entorno”. | DJI Fly">
+    <div class="item">
+      <img
+        loading="lazy"
+        src="Foto_007_Fuente-San-Isidro.jpg"
+        alt="Fuente San Isidro"
+        data-desc="14 de marzo de 2021. Reflejos al atardecer en la fuente del parque frente a la ermita de San Isidro. En Navalmoral de la Mata, para “Imágenes amigas de nuestro entorno”. | DJI Fly"
+      >
+    </div>
 
-    <img
-      loading="lazy"
-      src="Foto_006_Charca-Mayen.jpg"
-      alt="Charca Mayen"
-      data-desc="19 de marzo de 2021. Ya se deja notar la primavera en Navalmoral, con su paleta de colores en la fuente de la Teja y sus alrededores. Fuente la Teja en Navalmoral de la Mata. | Yoguifly’s | PdE">
+    <div class="item">
+      <img
+        loading="lazy"
+        src="Foto_006_Charca-Mayen.jpg"
+        alt="Charca Mayen"
+        data-desc="19 de marzo de 2021. Ya se deja notar la primavera en Navalmoral, con su paleta de colores en la fuente de la Teja y sus alrededores. Fuente la Teja en Navalmoral de la Mata. | Yoguifly’s | PdE"
+      >
+    </div>
 
-    <img
-      loading="lazy"
-      src="Foto_005_fuente-la-Teja.jpg"
-      alt="Fuente La Teja"
-      data-desc="28 de marzo de 2021. Ya se deja notar la primavera en Navalmoral, con su paleta de colores en la fuente de la Teja y sus alrededores. Fuente la Teja en Navalmoral de la Mata. | Yoguifly’s | PdE">
+    <div class="item">
+      <img
+        loading="lazy"
+        src="Foto_005_fuente-la-Teja.jpg"
+        alt="Fuente La Teja"
+        data-desc="28 de marzo de 2021. Ya se deja notar la primavera en Navalmoral, con su paleta de colores en la fuente de la Teja y sus alrededores. Fuente la Teja en Navalmoral de la Mata. | Yoguifly’s | PdE"
+      >
+    </div>
 
-    <img
-      loading="lazy"
-      src="Foto_004_mirador_Las_Ollas.jpg"
-      alt="Mirador Las Hollas"
-      data-desc="3 de abril de 2021. El mirador en el Paraje Las Ollas, en Cuacos de Yuste, protagonista este mes en “Imágenes amigas de nuestro entorno”. | PdE">
+    <div class="item">
+      <img
+        loading="lazy"
+        src="Foto_004_mirador_Las_Ollas.jpg"
+        alt="Mirador Las Hollas"
+        data-desc="3 de abril de 2021. El mirador en el Paraje Las Ollas, en Cuacos de Yuste, protagonista este mes en “Imágenes amigas de nuestro entorno”. | PdE"
+      >
+    </div>
 
-    <img
-      loading="lazy"
-      src="Foto_003_orquidea.jpg"
-      alt="Orquídea silvestre"
-      data-desc="9 de abril de 2021. Apoyada en una orquídea (ophrys scolopax), esta abeja (apis mellifera) parece estar reflexionando sobre su existencia, esperando a su pareja o averigua tú…, pero aquí donde la vemos obtuvo la mención especial “Premio al mejor participante local” con el título Relamiendo_scolopax en el concurso Ochydarium 2019, y es la protagonista en esta ocasión de “Imágenes amigas de nuestro entorno”. La escena fue captada por Fernando Sánchez Castilla en el Sierro de Almaraz.">
+    <div class="item">
+      <img
+        loading="lazy"
+        src="Foto_003_orquidea.jpg"
+        alt="Orquídea silvestre"
+        data-desc="9 de abril de 2021. Apoyada en una orquídea (ophrys scolopax), esta abeja (apis mellifera) parece estar reflexionando sobre su existencia, esperando a su pareja o averigua tú…, pero aquí donde la vemos obtuvo la mención especial “Premio al mejor participante local” con el título Relamiendo_scolopax en el concurso Ochydarium 2019, y es la protagonista en esta ocasión de “Imágenes amigas de nuestro entorno”. La escena fue captada por Fernando Sánchez Castilla en el Sierro de Almaraz."
+      >
+    </div>
 
-    <img
-      loading="lazy"
-      src="Foto_002_trafico.jpg"
-      alt="Tráfico en la peatonal"
-      data-desc="15 de abril de 2022. Así va el tráfico en la peatonal de Navalmoral de la Mata.">
+    <div class="item">
+      <img
+        loading="lazy"
+        src="Foto_002_trafico.jpg"
+        alt="Tráfico en la peatonal"
+        data-desc="15 de abril de 2022. Así va el tráfico en la peatonal de Navalmoral de la Mata."
+      >
+    </div>
 
-    <img
-      loading="lazy"
-      src="Foto_001_Expacionavalmoral.jpg"
-      alt="Exposición en Navalmoral de la Mata"
-      data-desc="23 de mayo de 2021. Expacionavalmoral ha sido protagonista estos días en la actualidad morala, entre otras cosas, por el aterrizaje de emergencia de una avioneta en una de sus avenidas. Buen momento para incluir esta fotografía, que nos ha hecho llegar Yoguifly’s, en “Imágenes Amigas de nuestro entorno”.">
+    <div class="item">
+      <img
+        loading="lazy"
+        src="Foto_001_Expacionavalmoral.jpg"
+        alt="Exposición en Navalmoral de la Mata"
+        data-desc="23 de mayo de 2021. Expacionavalmoral ha sido protagonista estos días en la actualidad morala, entre otras cosas, por el aterrizaje de emergencia de una avioneta en una de sus avenidas. Buen momento para incluir esta fotografía, que nos ha hecho llegar Yoguifly’s, en “Imágenes Amigas de nuestro entorno”."
+      >
+    </div>
 
   </div>
 
@@ -233,7 +267,7 @@
   </div>
 
   <script>
-    const imagenes = document.querySelectorAll('.galeria img');
+    const imagenes = document.querySelectorAll('.galeria .item img');
     const visor = document.getElementById('visor');
     const imagenGrande = document.getElementById('imagenGrande');
     const descripcion = document.getElementById('descripcion');
