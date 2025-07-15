@@ -22,13 +22,13 @@
       justify-content: center;
       gap: 1em;
       margin-top: 2em;
-      max-width: 1872px;
+      max-width: 1872px;  /* Limita ancho y centra */
       margin-left: auto;
       margin-right: auto;
     }
     .galeria .item {
       width: 220px;
-      height: 150px;
+      height: 150px; /* tamaño fijo para todas */
       border-radius: 6px;
       overflow: hidden;
       cursor: pointer;
@@ -46,6 +46,7 @@
       display: block;
       border-radius: 6px;
     }
+
     .visor {
       display: none;
       position: fixed;
@@ -56,7 +57,7 @@
       align-items: center;
       flex-direction: column;
       z-index: 9999;
-      padding: 1em 3em;
+      padding: 1em 3em; /* Más espacio lateral para que no quede tan pegado */
       opacity: 0;
       transition: opacity 0.3s ease;
       box-sizing: border-box;
@@ -71,20 +72,6 @@
       border-radius: 6px;
       box-shadow: 0 0 20px rgba(0,0,0,0.8);
       transition: transform 0.3s ease;
-      cursor: zoom-in;
-    }
-    .visor.expandida img {
-      height: 100vh;
-      width: auto;
-      max-width: none;
-      max-height: none;
-      object-fit: contain;
-      border-radius: 0;
-      box-shadow: none;
-      cursor: zoom-out;
-    }
-    .visor.expandida .descripcion {
-      display: none;
     }
     .descripcion {
       color: #fff;
@@ -102,7 +89,7 @@
     .cerrar {
       position: absolute;
       top: 1em;
-      right: 3em;
+      right: 3em; /* Separación mayor a la derecha */
       font-size: 2.5em;
       color: #fff;
       cursor: pointer;
@@ -115,7 +102,7 @@
       display: flex;
       justify-content: space-between;
       transform: translateY(-50%);
-      padding: 0 3em;
+      padding: 0 3em; /* Más separación lateral */
       z-index: 10000;
       box-sizing: border-box;
     }
@@ -131,12 +118,14 @@
     .flechas span:hover {
       color: #ffcc00;
     }
+
     .flechas span:first-child {
       margin-left: 0.5em;
     }
     .flechas span:last-child {
       margin-right: 0.5em;
     }
+
     .descripcion::-webkit-scrollbar {
       width: 8px;
     }
@@ -144,13 +133,13 @@
       background: rgba(255, 255, 255, 0.3);
       border-radius: 4px;
     }
+
     @media (max-width: 768px) {
       .visor {
-        padding: 1em 1.5em;
+        padding: 1em 1.5em; /* menos espacio lateral en móviles */
       }
       .cerrar {
         right: 1.5em;
-        font-size: 2em;
       }
       .flechas {
         padding: 0 1.5em;
@@ -165,7 +154,11 @@
       .flechas span {
         font-size: 2.5em;
       }
+      .cerrar {
+        font-size: 2em;
+      }
     }
+
     @media (orientation: landscape) and (max-width: 900px) {
       .visor img {
         max-height: 80vh;
@@ -179,12 +172,15 @@
   </style>
 </head>
 <body>
+
   <h1>Imágenes Amigas de Nuestro Entorno</h1>
-  <div class="presentacion">
+
+<div class="presentacion">
     <p><strong>ESTE ESPACIO</strong> está destinado a imágenes vuestras de nuestro entorno. Envíanos tu fotografía a <a href="mailto:info@puntodeencuentronavalmoral.es">info@puntodeencuentronavalmoral.es</a></p>
     <p>Las imágenes elegidas pasarán a formar parte de esta colección ayudando a promover la cultura y tradiciones de nuestro entorno. Recuerda añadir el autor (nombre o seudónimo) y la descripción.</p>
     <p>¡MGracias por formar parte de esta familia tan diversa y única!</p>
   </div>
+
   <div class="galeria">
 
     <div class="item">
@@ -439,18 +435,24 @@
       >
     </div>
 
+
+  </div>
+
   <div class="visor" id="visor" role="dialog" aria-modal="true" aria-labelledby="descripcion">
     <span class="cerrar" role="button" aria-label="Cerrar visor" tabindex="0"
-          onclick="cerrarVisor()" onkeypress="if(event.key==='Enter') cerrarVisor()">&times;</span>
+          onclick="cerrarVisor()" onkeypress="if(event.key==='Enter') cerrarVisor()">×</span>
+
     <div class="flechas">
       <span role="button" aria-label="Imagen anterior" tabindex="0"
             onclick="cambiarImagen(-1)" onkeypress="if(event.key==='Enter') cambiarImagen(-1)">‹</span>
       <span role="button" aria-label="Imagen siguiente" tabindex="0"
             onclick="cambiarImagen(1)" onkeypress="if(event.key==='Enter') cambiarImagen(1)">›</span>
     </div>
+
     <img id="imagenGrande" src="" alt="" loading="eager" />
     <div class="descripcion" id="descripcion"></div>
   </div>
+
   <script>
     const imagenes = document.querySelectorAll('.galeria .item img');
     const visor = document.getElementById('visor');
@@ -481,7 +483,6 @@
 
     function cerrarVisor() {
       visor.classList.remove('visible');
-      visor.classList.remove('expandida');
       bloquearScroll(false);
     }
 
@@ -497,10 +498,6 @@
       new Image().src = prev;
       new Image().src = next;
     }
-
-    imagenGrande.addEventListener('click', () => {
-      visor.classList.toggle('expandida');
-    });
 
     document.addEventListener('keydown', e => {
       if (visor.classList.contains('visible')) {
@@ -527,5 +524,6 @@
       })
     );
   </script>
+
 </body>
 </html>
