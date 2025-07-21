@@ -1,638 +1,475 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Imágenes Amigas de Nuestro Entorno</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
-      font-family: sans-serif;
-      background: #f4f4f4;
       margin: 0;
-      padding: 2em;
-      text-align: center;
-      overflow-x: hidden;
+      font-family: sans-serif;
+      background: #111;
+      color: white;
     }
     h1 {
-      color: #333;
+      text-align: center;
+      margin-top: 20px;
+      font-size: 2em;
+      color: #eee;
+    }
+    .presentacion {
+      margin: 0 auto 30px auto;
+      max-width: 800px;
+      padding: 10px 20px;
+      text-align: center;
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      color: #ccc;
+    }
+    .presentacion a {
+      color: #9cf;
+      text-decoration: underline;
     }
     .galeria {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 1em;
-      margin-top: 2em;
-      max-width: 1872px;  /* Limita ancho y centra */
-      margin-left: auto;
-      margin-right: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+      padding: 10px;
     }
-    .galeria .item {
-      width: 220px;
-      height: 150px; /* tamaño fijo para todas */
-      border-radius: 6px;
-      overflow: hidden;
-      cursor: pointer;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-      transition: transform 0.2s;
-      background: white;
-    }
-    .galeria .item:hover {
-      transform: scale(1.05);
-    }
-    .galeria .item img {
+    .galeria img {
       width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      border-radius: 6px;
+      cursor: pointer;
+      border-radius: 8px;
     }
-
     .visor {
-      display: none;
       position: fixed;
       top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.9);
+      width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.95);
+      display: none;
       justify-content: center;
       align-items: center;
       flex-direction: column;
-      z-index: 9999;
-      padding: 1em 3em; /* Más espacio lateral para que no quede tan pegado */
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      box-sizing: border-box;
-    }
-    .visor.visible {
-      display: flex;
-      opacity: 1;
+      z-index: 1000;
     }
     .visor img {
-      max-width: 90%;
+      object-fit: contain;
+    }
+    .visor img.normal {
+      max-width: 90vw;
       max-height: 80vh;
-      border-radius: 6px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.8);
-      transition: transform 0.3s ease;
+    }
+    .visor img.ampliada {
+      width: 100%;
+      height: 100%;
     }
     .descripcion {
-      color: #fff;
-      margin-top: 1em;
-      font-size: 1.1em;
-      max-width: 90%;
-      max-height: 150px;
-      overflow-y: auto;
-      white-space: pre-line;
-      background: rgba(0,0,0,0.4);
-      padding: 0.8em 1em;
-      border-radius: 6px;
-      box-sizing: border-box;
-    }
-    .cerrar {
-      position: absolute;
-      top: 1em;
-      right: 3em; /* Separación mayor a la derecha */
-      font-size: 2.5em;
-      color: #fff;
-      cursor: pointer;
-      user-select: none;
-    }
-    .flechas {
-      position: absolute;
-      top: 50%;
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      transform: translateY(-50%);
-      padding: 0 3em; /* Más separación lateral */
-      z-index: 10000;
-      box-sizing: border-box;
-    }
-    .flechas span {
-      font-size: 3em;
-      color: #fff;
-      cursor: pointer;
-      user-select: none;
-      width: 2em;
+      margin-top: 10px;
+      padding: 10px;
       text-align: center;
-      transition: color 0.2s;
+      max-height: 30vh;
+      overflow-y: auto;
+      color: #ccc;
     }
-    .flechas span:hover {
-      color: #ffcc00;
+    .prev, .next, .cerrar, .fullscreen {
+      position: absolute;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      border: none;
+      font-size: 28px;
+      padding: 8px 12px;
+      cursor: pointer;
+      border-radius: 6px;
+      z-index: 1001;
     }
-
-    .flechas span:first-child {
-      margin-left: 0.5em;
-    }
-    .flechas span:last-child {
-      margin-right: 0.5em;
-    }
-
-    .descripcion::-webkit-scrollbar {
-      width: 8px;
-    }
-    .descripcion::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.3);
-      border-radius: 4px;
-    }
-
-    @media (max-width: 768px) {
-      .visor {
-        padding: 1em 1.5em; /* menos espacio lateral en móviles */
-      }
-      .cerrar {
-        right: 1.5em;
-      }
-      .flechas {
-        padding: 0 1.5em;
-      }
-      .visor img {
-        max-height: 60vh;
-      }
-      .descripcion {
-        max-height: 30vh;
-        font-size: 1em;
-      }
-      .flechas span {
-        font-size: 2.5em;
-      }
-      .cerrar {
-        font-size: 2em;
-      }
-    }
-
-    @media (orientation: landscape) and (max-width: 900px) {
-      .visor img {
-        max-height: 80vh;
-      }
-      .descripcion {
-        max-height: 70vh;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-      }
-    }
+    .prev { left: 20px; top: 50%; transform: translateY(-50%); }
+    .next { right: 20px; top: 50%; transform: translateY(-50%); }
+    .cerrar { top: 20px; right: 20px; font-size: 22px; }
+    .fullscreen { top: 20px; right: 70px; font-size: 22px; }
   </style>
 </head>
 <body>
-
   <h1>Imágenes Amigas de Nuestro Entorno</h1>
-
-<div class="presentacion">
+  <div class="presentacion">
     <p><strong>ESTE ESPACIO</strong> está destinado a imágenes vuestras de nuestro entorno. Envíanos tu fotografía a <a href="mailto:info@puntodeencuentronavalmoral.es">info@puntodeencuentronavalmoral.es</a></p>
     <p>Las imágenes elegidas pasarán a formar parte de esta colección ayudando a promover la cultura y tradiciones de nuestro entorno. Recuerda añadir el autor (nombre o seudónimo) y la descripción.</p>
-    <p>¡MGracias por formar parte de esta familia tan diversa y única!</p>
+    <p>¡Gracias por formar parte de esta familia tan diversa y única!</p>
   </div>
 
   <div class="galeria">
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_002_trafico.jpg"
-        alt="Tráfico en la peatonal"
-        data-desc="15 de abril de 2022. Así va el tráfico en la peatonal de Navalmoral de la Mata. | PdE"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_002_trafico.jpg"
+  alt="Tráfico en la peatonal"
+  data-desc="15 de abril de 2022. Así va el tráfico en la peatonal de Navalmoral de la Mata. | PdE"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_001_Expacionavalmoral.jpg"
-        alt="Exposición en Navalmoral de la Mata"
-        data-desc="23 de mayo de 2021. Expacionavalmoral ha sido protagonista estos días en la actualidad morala, entre otras cosas, por el aterrizaje de emergencia de una avioneta en una de sus avenidas. Buen momento para incluir esta fotografía, que nos ha hecho llegar Yoguifly’s, en “Imágenes Amigas de nuestro entorno”."
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_001_Expacionavalmoral.jpg"
+  alt="Exposición en Navalmoral"
+  data-desc="23 de mayo de 2021. Expacionavalmoral ha sido protagonista estos días por el aterrizaje de una avioneta. Foto de Yoguifly’s."
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_003_orquidea.jpg"
-        alt="Orquídea silvestre"
-        data-desc="9 de abril de 2021. Apoyada en una orquídea (ophrys scolopax), esta abeja (apis mellifera) parece estar reflexionando sobre su existencia, esperando a su pareja o averigua tú…, pero aquí donde la vemos obtuvo la mención especial “Premio al mejor participante local” con el título Relamiendo_scolopax en el concurso Ochydarium 2019, y es la protagonista en esta ocasión de “Imágenes amigas de nuestro entorno”. La escena fue captada por Fernando Sánchez Castilla en el Sierro de Almaraz."
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_003_orquidea.jpg"
+  alt="Orquídea silvestre"
+  data-desc="9 de abril de 2021. Abeja sobre orquídea en el Sierro de Almaraz. Premio local en Ochydarium 2019."
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_004_mirador_Las_Ollas.jpg"
-        alt="Mirador Las Hollas"
-        data-desc="3 de abril de 2021. El mirador en el Paraje Las Ollas, en Cuacos de Yuste, protagonista este mes en “Imágenes amigas de nuestro entorno”. | PdE"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_004_mirador_Las_Ollas.jpg"
+  alt="Mirador Las Ollas"
+  data-desc="3 de abril de 2021. El mirador del Paraje Las Ollas, en Cuacos de Yuste. | PdE"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_005_fuente-la-Teja.jpg"
-        alt="Fuente La Teja"
-        data-desc="28 de marzo de 2021. Ya se deja notar la primavera en Navalmoral, con su paleta de colores en la fuente de la Teja y sus alrededores. Fuente la Teja en Navalmoral de la Mata. | Yoguifly’s | PdE"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_005_fuente-la-Teja.jpg"
+  alt="Fuente La Teja"
+  data-desc="28 de marzo de 2021. Ya se deja notar la primavera en Navalmoral, con su paleta de colores en la fuente de la Teja y sus alrededores. Fuente la Teja en Navalmoral de la Mata. | Yoguifly’s | PdE"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_006_Charca-Mayen.jpg"
-        alt="Charca Mayen"
-        data-desc="19 de marzo de 2021. Ya se deja notar la primavera en Navalmoral, con su paleta de colores en la fuente de la Teja y sus alrededores. Fuente la Teja en Navalmoral de la Mata. | Yoguifly’s | PdE"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_006_Charca-Mayen.jpg"
+  alt="Charca Mayen"
+  data-desc="19 de marzo de 2021. Ya se deja notar la primavera en Navalmoral, con su paleta de colores en la fuente de la Teja y sus alrededores. Fuente la Teja en Navalmoral de la Mata. | Yoguifly’s | PdE"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_007_Fuente-San-Isidro.jpg"
-        alt="Fuente San Isidro"
-        data-desc="14 de marzo de 2021. Reflejos al atardecer en la fuente del parque frente a la ermita de San Isidro. En Navalmoral de la Mata, para “Imágenes amigas de nuestro entorno”. | DJI Fly"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_007_Fuente-San-Isidro.jpg"
+  alt="Fuente San Isidro"
+  data-desc="14 de marzo de 2021. Reflejos al atardecer en la fuente del parque frente a la ermita de San Isidro. En Navalmoral de la Mata, para “Imágenes amigas de nuestro entorno”. | DJI Fly"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_008_Monolito-moralo.jpg"
-        alt="Monolito moralo"
-        data-desc="11 de junio de 2020. ¡Hola amigas/os, buenos días! Con esta perspectiva del monolito moralo que engalana la rotonda de la carretera de Valdehúncar dando rienda suelta a la imaginación según desde donde se observe. En este caso se nos antoja como un gran dinosaurio enamorado de la Piedra Caballera, a la que no puede dejar de mirar petrificado por su belleza. ¡Feliz jueves! Foto: PdE"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_008_Monolito-moralo.jpg"
+  alt="Monolito moralo"
+  data-desc="11 de junio de 2020. ¡Hola amigas/os, buenos días! Con esta perspectiva del monolito moralo que engalana la rotonda de la carretera de Valdehúncar dando rienda suelta a la imaginación según desde donde se observe. En este caso se nos antoja como un gran dinosaurio enamorado de la Piedra Caballera, a la que no puede dejar de mirar petrificado por su belleza. ¡Feliz jueves! Foto: PdE"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_009_Palacio-Justicia.jpg"
-        alt="Palacio de Justicia"
-        data-desc="10 de junio de 2020. ¡Hola amigas/os, buenos días! Con este singular edificio moralo, antiguo Hospital Moyano, posterior Hospital Antipalúdico y en la actualidad sede de los Juzgados. El Cronista Oficial de Navalmoral, Domingo Quijada González, da un repaso a su historia y evolución en el siguiente enlace: https://es.calameo.com/read/0010464076ce812c02df9. ¡Feliz miércoles! Foto: PdE"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_009_Palacio-Justicia.jpg"
+  alt="Palacio de Justicia"
+  data-desc="10 de junio de 2020. ¡Hola amigas/os, buenos días! Con este singular edificio moralo, antiguo Hospital Moyano, posterior Hospital Antipalúdico y en la actualidad sede de los Juzgados. El Cronista Oficial de Navalmoral, Domingo Quijada González, da un repaso a su historia y evolución en el siguiente enlace: https://es.calameo.com/read/0010464076ce812c02df9. ¡Feliz miércoles! Foto: PdE"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_010_Viborera.jpg"
-        alt="Viborera"
-        data-desc="8 de junio de 2020. ¡Hola amigas/os, buenos días! Con esta imagen en la que la naturaleza toma el protagonismo que merece difuminando al fondo, en modo alegórico, la pesadilla que nos acontece desde hace meses. ¡Feliz Fase 3! Foto: PdE"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_010_Viborera.jpg"
+  alt="Viborera"
+  data-desc="8 de junio de 2020. ¡Hola amigas/os, buenos días! Con esta imagen en la que la naturaleza toma el protagonismo que merece difuminando al fondo, en modo alegórico, la pesadilla que nos acontece desde hace meses. ¡Feliz Fase 3! Foto: PdE"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_011_Iglesia-Las-Angustias.jpg"
-        alt="Iglesia Las Angustias"
-        data-desc="7 de junio de 2020. Fachada Sur de la parroquia Ntra. Sra. de las Angustias, en Navalmoral de la Mata, con la torre y campanario en su estado actual. Foto: PdE"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_011_Iglesia-Las-Angustias.jpg"
+  alt="Iglesia Las Angustias"
+  data-desc="7 de junio de 2020. Fachada Sur de la parroquia Ntra. Sra. de las Angustias, en Navalmoral de la Mata, con la torre y campanario en su estado actual. Foto: PdE"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_012_Luna-morala.jpg"
-        alt="Luna morala"
-        data-desc="6 de junio de 2020. ¡Hola amigas/os, buenas tardes! Con esta sugestiva Luna morala de anoche. 'Así se veía la Luna desde la rotonda de Navarrosa' comentaba el autor al publicarla en el grupo “NAVALMORAL QUE ME NARRAS”, y no hay más que añadir, sólo darle las gracias por cedérnosla para “Imágenes amigas de nuestro entorno”. ¡Feliz sábado! Foto: Antonio Vaquero Fernández"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_012_Luna-morala.jpg"
+  alt="Luna morala"
+  data-desc="6 de junio de 2020. ¡Hola amigas/os, buenas tardes! Con esta sugestiva Luna morala de anoche. 'Así se veía la Luna desde la rotonda de Navarrosa' comentaba el autor al publicarla en el grupo “NAVALMORAL QUE ME NARRAS”, y no hay más que añadir, sólo darle las gracias por cedérnosla para “Imágenes amigas de nuestro entorno”. ¡Feliz sábado! Foto: Antonio Vaquero Fernández"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_014_Amanecer-fuente-la-Bamba.jpg"
-        alt="Amanecer en la Bamba"
-        data-desc="5 de junio de 2020. ¡Hola amigas/os, buenos días! Con un amanecer moralo desde el entorno de la Bamba. ¡Feliz viernes! Foto: PdE"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_014_Amanecer-fuente-la-Bamba.jpg"
+  alt="Amanecer en la Bamba"
+  data-desc="5 de junio de 2020. ¡Hola amigas/os, buenos días! Con un amanecer moralo desde el entorno de la Bamba. ¡Feliz viernes! Foto: PdE"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_013_Flor-Viola.jpg"
-        alt="Flor Viola"
-        data-desc="5 de junio de 2020. ¡Hola amigas/os, buenas tardes! Hoy, Día Internacional del Medioambiente, con esta viola que nos invita a reflexionar sobre la frágil línea que separa el medioambiente del 'malambiente'... Foto: PdE"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_013_Flor-Viola.jpg"
+  alt="Flor Viola"
+  data-desc="5 de junio de 2020. ¡Hola amigas/os, buenas tardes! Hoy, Día Internacional del Medioambiente, con esta viola que nos invita a reflexionar sobre la frágil línea que separa el medioambiente del 'malambiente'... Foto: PdE"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_021_busqueda-Rosalia.jpg"
-        alt="Búsqueda de Rosalía"
-        data-desc="1 de junio de 2020. ¡Hola amigas/os! Ni el menor rastro de Rosalía. Una mañana más de búsqueda infructuosa de la vecina de Bohonal de Ibor desaparecida, que hoy gracias a la encomiable labor de la Guardia Civil, se ha saldado al menos sin más víctimas de esta tragedia, ya que hemos vivido momentos, algunos y algunas de los participantes en la búsqueda, de extremo peligro en algunos precipicios insalvables tratando de llegar al río. Lamentamos profundamente esta decepción, sin perder la esperanza (que es lo último que se pierde) de un desenlace favorable para ella y su familia. Foto: PdE"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_021_busqueda-Rosalia.jpg"
+  alt="Búsqueda de Rosalía"
+  data-desc="1 de junio de 2020. ¡Hola amigas/os! Ni el menor rastro de Rosalía. Una mañana más de búsqueda infructuosa de la vecina de Bohonal de Ibor desaparecida, que hoy gracias a la encomiable labor de la Guardia Civil, se ha saldado al menos sin más víctimas de esta tragedia, ya que hemos vivido momentos, algunos y algunas de los participantes en la búsqueda, de extremo peligro en algunos precipicios insalvables tratando de llegar al río. Lamentamos profundamente esta decepción, sin perder la esperanza (que es lo último que se pierde) de un desenlace favorable para ella y su familia. Foto: PdE"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_015_Plazoleta-morala.jpg"
-        alt="Plazoleta morala"
-        data-desc="31 de mayo de 2020. Plazoleta morala en la calle Paulino Uzcudum. Foto: PdE"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_015_Plazoleta-morala.jpg"
+  alt="Plazoleta morala"
+  data-desc="31 de mayo de 2020. Plazoleta morala en la calle Paulino Uzcudum. Foto: PdE"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_016_Cancho-el-Librillo.jpg"
-        alt="Cancho El Librillo"
-        data-desc="30 de mayo de 2020. ¡Hola amigas/os, buenos días! Con esta imagen de el Cancho el Librillo en Bohonal de Ibor. En esta zona se está llevando a cabo estos días la búsqueda de Rosalía, una vecina de la población desaparecida desde la tarde del pasado lunes, sin ningún resultado hasta el momento. A continuación compartimos un bando del Ayuntamiento solicitando ayuda voluntaria para continuar la búsqueda el próximo lunes. Desde este medio manifestamos nuestros inmensos deseos de que se produzca lo antes posible un desenlace favorable. Foto: Fernando Sarró"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_016_Cancho-el-Librillo.jpg"
+  alt="Cancho El Librillo"
+  data-desc="30 de mayo de 2020. ¡Hola amigas/os, buenos días! Con esta imagen de el Cancho el Librillo en Bohonal de Ibor. En esta zona se está llevando a cabo estos días la búsqueda de Rosalía, una vecina de la población desaparecida desde la tarde del pasado lunes, sin ningún resultado hasta el momento. A continuación compartimos un bando del Ayuntamiento solicitando ayuda voluntaria para continuar la búsqueda el próximo lunes. Desde este medio manifestamos nuestros inmensos deseos de que se produzca lo antes posible un desenlace favorable. Foto: Fernando Sarró"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_019_Escultura-mujer-trabajadora.jpg"
-        alt="Escultura Mujer trabajadora"
-        data-desc="28 de mayo de 2020. ¡Hola amigas/os, buenos días! Hoy con esta nostálgica imagen, de la que tenemos poca información. Una escultura que descansa impasible en las instalaciones de la antigua fábrica textil morala de Fuentecapala. Tenemos entendido que se inauguró en homenaje a la mujer trabajadora, pero agradecemos como siempre cualquier información que nos ayude a conocer su origen. ¡Feliz jueves! Foto: PdE. En el enlace a continuación, el Cronista Oficial de Navalmoral de la Mata Domingo Quijada González, da un repaso al ayer y hoy de la industria textil morala: http://www.cronistasoficiales.com/?p=5054. La escultura ya no está en la ubicación que se detalla, está en la rotonda junto al barrio de la Marcha Verde. Foto: PdE"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_019_Escultura-mujer-trabajadora.jpg"
+  alt="Escultura Mujer trabajadora"
+  data-desc="28 de mayo de 2020. ¡Hola amigas/os, buenos días! Hoy con esta nostálgica imagen, de la que tenemos poca información. Una escultura que descansa impasible en las instalaciones de la antigua fábrica textil morala de Fuentecapala. Tenemos entendido que se inauguró en homenaje a la mujer trabajadora, pero agradecemos como siempre cualquier información que nos ayude a conocer su origen. ¡Feliz jueves! Foto: PdE. En el enlace a continuación, el Cronista Oficial de Navalmoral de la Mata Domingo Quijada González, da un repaso al ayer y hoy de la industria textil morala: http://www.cronistasoficiales.com/?p=5054. La escultura ya no está en la ubicación que se detalla, está en la rotonda junto al barrio de la Marcha Verde. Foto: PdE"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_017_Edificio-Iberdrola.jpg"
-        alt="Edificio Iberdrola"
-        data-desc="27 de mayo de 2020. ¡Hola amigas/os, buenos días! Con la imagen de este singular edificio moralo donde se ubicaron en su día las oficinas de Iberdrola. ¡Feliz miércoles! Foto: PdE"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_017_Edificio-Iberdrola.jpg"
+  alt="Edificio Iberdrola"
+  data-desc="27 de mayo de 2020. ¡Hola amigas/os, buenos días! Con la imagen de este singular edificio moralo donde se ubicaron en su día las oficinas de Iberdrola. ¡Feliz miércoles! Foto: PdE"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_018_Escuela-Hogar.jpg"
-        alt="Escuela Hogar"
-        data-desc="26 de mayo de 2020. ¡Hola amigas/os, feliz martes! Con esta imagen del que fuera primer colegio público de Navalmoral, según comenta el Cronista Oficial de Navalmoral, Domingo Quijada González en el artículo al que nos lleva el siguiente enlace: http://www.cronistasoficiales.com/?p=77250. Foto: PdE"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_018_Escuela-Hogar.jpg"
+  alt="Escuela Hogar"
+  data-desc="26 de mayo de 2020. ¡Hola amigas/os, feliz martes! Con esta imagen del que fuera primer colegio público de Navalmoral, según comenta el Cronista Oficial de Navalmoral, Domingo Quijada González en el artículo al que nos lleva el siguiente enlace: http://www.cronistasoficiales.com/?p=77250. Foto: PdE"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_020_Ermita-las-Angustias.jpg"
-        alt="Ermita Las Angustias"
-        data-desc="25 de mayo de 2020. Hola Amigas/os, buenos días! Con esta imagen de la ermita de la Virgen de las Angustias, para Imágenes Amigas de nuestro entorno. Más abajo, en el enlace al blog de Joaquín Sarró Silva, encontramos un artículo de Domingo Quijada González, Cronista Oficial de Navalmoral de la Mata, donde detalla su origen e historia: https://joaquinsarrosilva.wordpress.com/virgen-de-las-angustias. Foto: PdE"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_020_Ermita-las-Angustias.jpg"
+  alt="Ermita Las Angustias"
+  data-desc="25 de mayo de 2020. Hola Amigas/os, buenos días! Con esta imagen de la ermita de la Virgen de las Angustias, para Imágenes Amigas de nuestro entorno. Más abajo, en el enlace al blog de Joaquín Sarró Silva, encontramos un artículo de Domingo Quijada González, Cronista Oficial de Navalmoral de la Mata, donde detalla su origen e historia: https://joaquinsarrosilva.wordpress.com/virgen-de-las-angustias. Foto: PdE"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_022_Oficina-Turismo.jpg"
-        alt="Oficina de Turismo"
-        data-desc="23 de mayo de 2020. ¡Hola amigas/os, buenos días! Con esta imagen de la Oficina de Turismo morala, hoy en desuso, en el barrio de la Marcha Verde, pero que estos días ha tomado protagonismo al convertirse en punto de entrega del pack de mascarillas y guantes entregado a la ciudadanía por el Ayuntamiento. ¡Feliz sábado! Foto: PdE"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_022_Oficina-Turismo.jpg"
+  alt="Oficina de Turismo"
+  data-desc="23 de mayo de 2020. ¡Hola amigas/os, buenos días! Con esta imagen de la Oficina de Turismo morala, hoy en desuso, en el barrio de la Marcha Verde, pero que estos días ha tomado protagonismo al convertirse en punto de entrega del pack de mascarillas y guantes entregado a la ciudadanía por el Ayuntamiento. ¡Feliz sábado! Foto: PdE"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_023_Vias-Renfe-Navalmoral.jpg"
-        alt="Vías Renfe Navalmoral"
-        data-desc="22 de mayo de 2020. ¡Hola amigas/os, buenos días! Con esta vieja imagen de unas vías que comunican a Navalmoral de la Mata con el resto del mundo. ¡Feliz viernes! Foto: PdE”."
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_023_Vias-Renfe-Navalmoral.jpg"
+  alt="Vías Renfe Navalmoral"
+  data-desc="22 de mayo de 2020. ¡Hola amigas/os, buenos días! Con esta vieja imagen de unas vías que comunican a Navalmoral de la Mata con el resto del mundo. ¡Feliz viernes! Foto: PdE"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_024_Plaza-Rafael-Medina.jpg"
-        alt="Plaza Rafael Medina"
-        data-desc="20 de mayo de 2020. ¡Hola amigas/os, buenas tardes! Con esta imagen, de otra plaza morala para 'Imágenes Amigas de nuestro entorno', en esta ocasión la de Rafael Medina. Foto: PdE"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_024_Plaza-Rafael-Medina.jpg"
+  alt="Plaza Rafael Medina"
+  data-desc="20 de mayo de 2020. ¡Hola amigas/os, buenas tardes! Con esta imagen, de otra plaza morala para 'Imágenes Amigas de nuestro entorno', en esta ocasión la de Rafael Medina. Foto: PdE"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_025_Escultura-Antonio-Concha.jpg"
-        alt="Escultura Antonio Concha"
-        data-desc="19 de mayo de 2020. ¡Hola amigas/os, buenos días! Descansando sobre el suelo del patio principal de la Fundación Concha, se alza majestuoso el busto de Don Antonio María Concha, fundador de la misma. No parece echar de menos la pila que recogía el agua que brotaba de la boca del rostro que daba vida a su fuente, se conforma con presidir la entrada a su fundación que también es fuente, en este caso de la que emana cultura. ¡Feliz martes! Foto: PdE"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_025_Escultura-Antonio-Concha.jpg"
+  alt="Escultura Antonio Concha"
+  data-desc="19 de mayo de 2020. ¡Hola amigas/os, buenos días! Descansando sobre el suelo del patio principal de la Fundación Concha, se alza majestuoso el busto de Don Antonio María Concha, fundador de la misma. No parece echar de menos la pila que recogía el agua que brotaba de la boca del rostro que daba vida a su fuente, se conforma con presidir la entrada a su fundación que también es fuente, en este caso de la que emana cultura. ¡Feliz martes! Foto: PdE"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_026_Potro-mamando.jpg"
-        alt="Plaza Rafael Medina"
-        data-desc="18 de mayo de 2020. ¡Hola amigas/os, feliz lunes! No hay ataduras ni confinamientos que impidan a la vida abrirse paso y evolucionar en el Campo Arañuelo. Cuando una imagen lo dice todo, ¿qué más se puede añadir? Foto: PdE"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_026_Potro-mamando.jpg"
+  alt="Potro mamando"
+  data-desc="18 de mayo de 2020. ¡Hola amigas/os, feliz lunes! No hay ataduras ni confinamientos que impidan a la vida abrirse paso y evolucionar en el Campo Arañuelo. Cuando una imagen lo dice todo, ¿qué más se puede añadir? Foto: PdE"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_027_Panoramica-morala-desde-cerros.jpg"
-        alt="Panorámica morala desde cerros"
-        data-desc="17 de mayo de 2020. ¡Hola amigas/os! Hay mañanas que los cerros moralos ofrecen perspectivas similares pero nunca iguales. ¡Feliz domingo! Foto: PdE"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_027_Panoramica-morala-desde-cerros.jpg"
+  alt="Panorámica morala desde cerros"
+  data-desc="17 de mayo de 2020. ¡Hola amigas/os! Hay mañanas que los cerros moralos ofrecen perspectivas similares pero nunca iguales. ¡Feliz domingo! Foto: PdE"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_028_Plaza-Dr.-Murillo.jpg"
-        alt="Plaza Dr. Murillo"
-        data-desc="16 de mayo de 2020. ¡Hola amigas/os! Con esta imagen, de hace ya tiempo, de la plaza Doctor Murillo, conocida por moralas y moralos como la plaza del Pósito. Foto: PdE"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_028_Plaza-Dr.-Murillo.jpg"
+  alt="Plaza Dr. Murillo"
+  data-desc="16 de mayo de 2020. ¡Hola amigas/os! Con esta imagen, de hace ya tiempo, de la plaza Doctor Murillo, conocida por moralas y moralos como la plaza del Pósito. Foto: PdE"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_029_Caballo-frente-a-Gredos.jpg"
-        alt="Caballo frente a Gredos"
-        data-desc="13 de mayo de 2020. ¡Hola amigas/os! Con esta escena habitual del paisaje moralo con la Sierra de Gredos nevada al fondo, para 'Imágenes Amigas de nuestro entorno'. Foto: PdE"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_029_Caballo-frente-a-Gredos.jpg"
+  alt="Caballo frente a Gredos"
+  data-desc="13 de mayo de 2020. ¡Hola amigas/os! Con esta escena habitual del paisaje moralo con la Sierra de Gredos nevada al fondo, para 'Imágenes Amigas de nuestro entorno'. Foto: PdE"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_030_Escultura-Jorge-Moro.jpg"
-        alt="Escultura Jorge Moro"
-        data-desc="12 de mayo de 2020. ¡Hola amigas/os, buenos días! Con esta imagen del busto en bronce del maestro Don Jorge Moro Briz, sobre una gran roca de granito (obra de su ex alumno Francisco Sánchez Villarroel), ubicado en la avenida del Magisterio de Navalmoral de la Mata. Un excelente maestro, muy apreciado por los que fueron sus discípulos, del que podemos obtener más información en el articulo de Domingo Quijada González, Cronista Oficial de Navalmoral, publicado en el blog de Joaquín Sarró Silva en el enlace a continuación: https://joaquinsarrosilva.wordpress.com/about/moralos/moro-jorge/. Foto:PdE"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_030_Escultura-Jorge-Moro.jpg"
+  alt="Escultura Jorge Moro"
+  data-desc="12 de mayo de 2020. ¡Hola amigas/os, buenos días! Con esta imagen del busto en bronce del maestro Don Jorge Moro Briz, sobre una gran roca de granito (obra de su ex alumno Francisco Sánchez Villarroel), ubicado en la avenida del Magisterio de Navalmoral de la Mata. Un excelente maestro, muy apreciado por los que fueron sus discípulos, del que podemos obtener más información en el artículo de Domingo Quijada González, Cronista Oficial de Navalmoral, publicado en el blog de Joaquín Sarró Silva: https://joaquinsarrosilva.wordpress.com/about/moralos/moro-jorge/. Foto: PdE"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_031_Silo-y-Renfe.jpg"
-        alt="Silo y Renfe"
-        data-desc="10 de mayo de 2020. ¡Hola amigas/os, buenos días! Con esta antigua imagen del edificio moralo de El Silo, junto a la Estación de RENFE. ¡Feliz domingo! Foto: PdE"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_031_Silo-y-Renfe.jpg"
+  alt="Silo y Renfe"
+  data-desc="10 de mayo de 2020. ¡Hola amigas/os, buenos días! Con esta antigua imagen del edificio moralo de El Silo, junto a la Estación de RENFE. ¡Feliz domingo! Foto: PdE"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_032_Monolito-y-Piedra-Caballera.jpg"
-        alt="Monolito y Piedra Caballera"
-        data-desc="9 de mayo de 2020. ¡Hola amigas/os, buenos días! Monolito moralo en la rotonda de la carretera de Valdehúncar. Como siempre agradecemos cualquier información sobre su historia y autoría. Foto: PdE"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_032_Monolito-y-Piedra-Caballera.jpg"
+  alt="Monolito y Piedra Caballera"
+  data-desc="9 de mayo de 2020. ¡Hola amigas/os, buenos días! Monolito moralo en la rotonda de la carretera de Valdehúncar. Como siempre agradecemos cualquier información sobre su historia y autoría. Foto: PdE"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_033_Escultura-nido-ciguenas.jpg"
-        alt="Escultura nido cigÜeñas"
-        data-desc="3 de mayo de 2020. Hola amigas/os, buenos días! Lo primero ¡FELICIDADES A TODAS LAS MAMÁS! Con esta imagen que representa a otra mamá alimentando a sus bebés. Cerca de la Estación de Tren y Autobuses de Navalmoral, en la Carretera de Jarandilla se encuentra este conjunto escultórico conocido como el Monumento Natural. Representa un nido de cigüeñas característico en toda Extremadura. Una obra realizada en forja por los alumnos de la Escuela Taller 'Campana La Mata' con motivo de la 'Semana del Campo Arañuelo' que se celebró en el Pabellón de Extremadura de la Expo 92, sirviendo como recordatorio de que mas allá de los núcleos urbanos existe una naturaleza fantástica que hay que preservar. ¡Feliz domingo! Foto: PdE"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_033_Escultura-nido-ciguenas.jpg"
+  alt="Escultura nido cigüeñas"
+  data-desc="3 de mayo de 2020. ¡Hola amigas/os, buenos días! Lo primero ¡FELICIDADES A TODAS LAS MAMÁS! Con esta imagen que representa a otra mamá alimentando a sus bebés. Cerca de la Estación de Tren y Autobuses de Navalmoral, en la Carretera de Jarandilla se encuentra este conjunto escultórico conocido como el Monumento Natural. Representa un nido de cigüeñas característico en toda Extremadura. Una obra realizada en forja por los alumnos de la Escuela Taller 'Campana La Mata' con motivo de la Semana del Campo Arañuelo que se celebró en el Pabellón de Extremadura de la Expo 92. ¡Feliz domingo! Foto: PdE"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_034_Competicion-ecuestre.jpg"
-        alt="Competición Ecuestre"
-        data-desc="30 de abril de 2020. ¡Hola amigas/os, buenos días! Con esta imagen del ambiente que registraba la edición 2003 del Campeonato de España de Concurso Completo en Navalmoral de la Mata. ¡Felices recuerdos!
-Foto: PdE"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_034_Competicion-ecuestre.jpg"
+  alt="Competición Ecuestre"
+  data-desc="30 de abril de 2020. ¡Hola amigas/os, buenos días! Con esta imagen del ambiente que registraba la edición 2003 del Campeonato de España de Concurso Completo en Navalmoral de la Mata. ¡Felices recuerdos! Foto: PdE"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_035_Escultura-los-Atlantes.jpg"
-        alt="Escultura Los Atlantres"
-        data-desc="28 de abril de 2020. Escultura en la plaza del Doctor León Sánchez Jiménez (Plaza Vieja) de Navalmoral de la Mata. No encontramos la descripción ni el autor (lo teníamos), podría ser que tenga algo que ver con un mundo oprimido... Ojalá alguna amiga o amigo nos ayude a recuperarla. Foto: PdE l de la Mata. ¡Felices recuerdos! Foto: PdE"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_035_Escultura-los-Atlantes.jpg"
+  alt="Escultura Los Atlantes"
+  data-desc="28 de abril de 2020. Escultura en la plaza del Doctor León Sánchez Jiménez (Plaza Vieja) de Navalmoral de la Mata. No encontramos la descripción ni el autor (lo teníamos), podría ser que tenga algo que ver con un mundo oprimido... Ojalá alguna amiga o amigo nos ayude a recuperarla. Foto: PdE"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_036_Rosa.jpg"
-        alt="Rosa"
-        data-desc="31 de marzo de 2020. ¡Hola amigas/os, buenos días! Con esta rosa roja morala del barrio La Paz, repartiendo amor bajo un cielo azul que rebosa ilusión y esperanza. ¡Feliz martes! Foto: PdE. #QuédateEnCasa"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_036_Rosa.jpg"
+  alt="Rosa"
+  data-desc="31 de marzo de 2020. ¡Hola amigas/os, buenos días! Con esta rosa roja morala del barrio La Paz, repartiendo amor bajo un cielo azul que rebosa ilusión y esperanza. ¡Feliz martes! Foto: PdE. #QuédateEnCasa"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_037_Pasaje-floral.jpg"
-        alt="Pasaje floral"
-        data-desc="30 de marzo de 2020. Pasaje floral en la calle Cartagena de Navalmoral. Foto: PdE. #ImagenesAmigasDeNuestroEntorno #QuédateEnCasa"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_037_Pasaje-floral.jpg"
+  alt="Pasaje floral"
+  data-desc="30 de marzo de 2020. Pasaje floral en la calle Cartagena de Navalmoral. Foto: PdE. #ImagenesAmigasDeNuestroEntorno #QuédateEnCasa"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_038_Pasion-de-Cristo.jpg"
-        alt="Pasión de Cristo"
-        data-desc="8 de marzo de 2020. ¡Hola amigas/os! Este mes en 'Imágenes Amigas de nuestro entorno': LA PASIÓN DE CRISTO. Un momento de la representación teatral de la Pasión de Cristo en la Semana Santa de Belvís de Monroy, año 2019. Una iniciativa que se viene llevando a cabo desde hace años, y que cada vez cuenta con más participación. Foto: AMS"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_038_Pasion-de-Cristo.jpg"
+  alt="Pasión de Cristo"
+  data-desc="8 de marzo de 2020. ¡Hola amigas/os! Este mes en 'Imágenes Amigas de nuestro entorno': LA PASIÓN DE CRISTO. Un momento de la representación teatral de la Semana Santa de Belvís de Monroy (2019). Una iniciativa que se viene llevando a cabo desde hace años, cada vez con más participación. Foto: AMS"
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_039_Caballito-del-Diablo.jpg"
-        alt="Caballito del Diablo"
-        data-desc="2 de febrero de 2020. ¡Hola amigas/os! Este mes en 'Imágenes Amigas de nuestro entorno': CABALLITO DEL DIABLO (LESTES BARBARUS). Este primer plano del fotógrafo moralo Fernando Sánchez Castilla, fue elegido por National Geographic entre las mejores fotos de #TuFotoNatGeo del 29 de noviembre al 6 de diciembre. La imagen está tomada en la charca de la Dehesa Abajo de Navalmoral de la Mata. Teniendo en cuenta estas fechas, parece estar preparada para que su belleza natural rivalice estos días con los disfraces más audaces del Carnaval de Navalmoral."
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_039_Caballito-del-Diablo.jpg"
+  alt="Caballito del Diablo"
+  data-desc="2 de febrero de 2020. ¡Hola amigas/os! Este mes en 'Imágenes Amigas de nuestro entorno': CABALLITO DEL DIABLO (LESTES BARBARUS). Este primer plano del fotógrafo moralo Fernando Sánchez Castilla fue elegido por National Geographic entre las mejores fotos de #TuFotoNatGeo del 29 de noviembre al 6 de diciembre. Imagen tomada en la charca de la Dehesa Abajo de Navalmoral de la Mata."
+/>
 
-    <div class="item">
-      <img
-        loading="lazy"
-        src="Foto_040_Fuente-y-San-Andres.jpg"
-        alt="Fuente frente a Iglesia San Andrés"
-        data-desc="19 de diciembre de 2019. ¡Hola amigas/os! Con esta perspectiva de la Plaza de España, desde el corazón de Navalmoral de la Mata, os deseamos estos días unas fiestas repletas de momentos entrañables, de bienestar, de alegría... Foto: PdE"
-      >
-    </div>
+<img 
+  loading="lazy"
+  src="Foto_040_Fuente-y-San-Andres.jpg"
+  alt="Fuente frente a Iglesia San Andrés"
+  data-desc="19 de diciembre de 2019. ¡Hola amigas/os! Con esta perspectiva de la Plaza de España, desde el corazón de Navalmoral de la Mata, os deseamos unas fiestas repletas de momentos entrañables, de bienestar, de alegría... Foto: PdE"
+/>
 
 
   </div>
 
-  <div class="visor" id="visor" role="dialog" aria-modal="true" aria-labelledby="descripcion">
-    <span class="cerrar" role="button" aria-label="Cerrar visor" tabindex="0"
-          onclick="cerrarVisor()" onkeypress="if(event.key==='Enter') cerrarVisor()">×</span>
-
-    <div class="flechas">
-      <span role="button" aria-label="Imagen anterior" tabindex="0"
-            onclick="cambiarImagen(-1)" onkeypress="if(event.key==='Enter') cambiarImagen(-1)">‹</span>
-      <span role="button" aria-label="Imagen siguiente" tabindex="0"
-            onclick="cambiarImagen(1)" onkeypress="if(event.key==='Enter') cambiarImagen(1)">›</span>
-    </div>
-
-    <img id="imagenGrande" src="" alt="" loading="eager" />
-    <div class="descripcion" id="descripcion"></div>
+  <div class="visor" id="visor">
+    <button class="cerrar" onclick="cerrarVisor()">✕</button>
+    <button class="fullscreen" onclick="toggleFullscreen()">⛶</button>
+    <button class="prev" onclick="cambiarImagen(-1)">❮</button>
+    <img id="visorImagen" src="" alt="">
+    <div class="descripcion" id="visorDescripcion"></div>
+    <button class="next" onclick="cambiarImagen(1)">❯</button>
   </div>
 
   <script>
-    const imagenes = document.querySelectorAll('.galeria .item img');
     const visor = document.getElementById('visor');
-    const imagenGrande = document.getElementById('imagenGrande');
-    const descripcion = document.getElementById('descripcion');
+    const visorImagen = document.getElementById('visorImagen');
+    const visorDescripcion = document.getElementById('visorDescripcion');
+    const imagenes = document.querySelectorAll('.galeria img');
     let indiceActual = 0;
-
-    function bloquearScroll(bloquear) {
-      document.body.style.overflow = bloquear ? 'hidden' : '';
-    }
+    let modoAmpliado = false;
 
     imagenes.forEach((img, i) => {
       img.addEventListener('click', () => {
         indiceActual = i;
+        modoAmpliado = false;
+        visor.style.display = 'flex';
         mostrarImagen();
-        visor.classList.add('visible');
-        bloquearScroll(true);
-        precargarVecinas();
       });
     });
 
     function mostrarImagen() {
       const img = imagenes[indiceActual];
-      imagenGrande.src = img.src;
-      imagenGrande.alt = img.alt;
-      descripcion.textContent = img.dataset.desc;
+      visorImagen.src = img.src;
+      visorImagen.alt = img.alt;
+      visorDescripcion.textContent = img.getAttribute('data-desc') || img.alt;
+
+      visorImagen.classList.remove('normal', 'ampliada');
+      if (modoAmpliado) {
+        visorDescripcion.style.display = 'none';
+        visorImagen.classList.add('ampliada');
+      } else {
+        visorDescripcion.style.display = 'block';
+        visorImagen.classList.add('normal');
+      }
     }
 
-    function cerrarVisor() {
-      visor.classList.remove('visible');
-      bloquearScroll(false);
-    }
+    visorImagen.addEventListener('click', () => {
+      modoAmpliado = !modoAmpliado;
+      mostrarImagen();
+    });
 
     function cambiarImagen(direccion) {
       indiceActual = (indiceActual + direccion + imagenes.length) % imagenes.length;
+      modoAmpliado = false;
+      visorImagen.classList.remove('normal', 'ampliada');
       mostrarImagen();
-      precargarVecinas();
     }
 
-    function precargarVecinas() {
-      const prev = imagenes[(indiceActual - 1 + imagenes.length) % imagenes.length].src;
-      const next = imagenes[(indiceActual + 1) % imagenes.length].src;
-      new Image().src = prev;
-      new Image().src = next;
-    }
-
-    document.addEventListener('keydown', e => {
-      if (visor.classList.contains('visible')) {
-        if (e.key === 'ArrowRight') cambiarImagen(1);
-        if (e.key === 'ArrowLeft') cambiarImagen(-1);
-        if (e.key === 'Escape') cerrarVisor();
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        visor.requestFullscreen?.();
+      } else {
+        document.exitFullscreen?.();
       }
+    }
+
+    function cerrarVisor() {
+      visor.style.display = 'none';
+      modoAmpliado = false;
+      visorImagen.classList.remove('ampliada', 'normal');
+      document.exitFullscreen?.();
+    }
+
+    visor.addEventListener('click', e => {
+      if (e.target === visor) cerrarVisor();
     });
 
-    function esElementoInterno(el) {
-      return (
-        el === imagenGrande ||
-        el === descripcion ||
-        el.closest('.flechas') ||
-        el.classList.contains('cerrar')
-      );
-    }
+    // 🖐️ Deslizar en móviles
+    let xInicial = null;
+    visorImagen.addEventListener('touchstart', e => {
+      xInicial = e.touches[0].clientX;
+    });
+    visorImagen.addEventListener('touchend', e => {
+      if (xInicial === null) return;
+      const xFinal = e.changedTouches[0].clientX;
+      const diferencia = xInicial - xFinal;
 
-    ['click', 'touchstart'].forEach(evt =>
-      visor.addEventListener(evt, e => {
-        if (!esElementoInterno(e.target)) {
-          cerrarVisor();
-        }
-      })
-    );
+      if (Math.abs(diferencia) > 50) {
+        if (diferencia > 0) cambiarImagen(1);
+        else cambiarImagen(-1);
+      }
+      xInicial = null;
+    });
   </script>
-
 </body>
 </html>
